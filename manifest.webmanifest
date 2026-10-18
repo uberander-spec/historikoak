@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "Historikoak — Mi cine pendiente",
+  "short_name": "Historikoak",
+  "description": "Selector de películas pendientes",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0c1319",
+  "theme_color": "#131c24",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
