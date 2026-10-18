@@ -178,7 +178,7 @@ async function durationLookup(m){
   return {minutes:duration,source:duration?source:null,at:Date.now()};
 }
 function runtimeQueueOne(m,force=false,priority=false){
-  if(!m||durationQueued.has(m.id)||(!force&&checkedDuration(m.id)))return;
+  if(!m||durationQueued.has(m.id)||(!force&&checkedDuration(m.id))||(force&&learnedRuntime(m.id)))return;
   durationQueued.add(m.id);
   if(priority)durationPending.unshift(m);else durationPending.push(m);
   workDurations();
