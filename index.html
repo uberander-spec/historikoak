@@ -46,6 +46,16 @@
       .pick-actions .button {min-height:48px;}
       .filtergrid .field {min-width:0;}
     }
+
+    /* Carteles: cuando hay imagen verificable, sustituye la portada provisional. */
+    .cover{position:relative;overflow:hidden}
+    .cover .real-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:#111c24}
+    .poster-caption{font-size:11px;color:var(--muted);margin:9px 0 0}
+    .dialog-poster{margin:12px 0;min-height:0}
+    .dialog-poster .cover{width:130px;height:194px;min-height:0}
+    .dialog-poster .cover b{font-size:25px}
+    .poster-source{display:block;font-size:12px;margin-top:8px;color:var(--accent);text-decoration:none}
+    .poster-source:hover{text-decoration:underline}
   </style>
 </head>
 <body>
@@ -59,10 +69,10 @@
   <div class="field"><label for="genre">Género</label><select id="genre"><option value="">Todos los géneros</option></select></div>
 </div><div class="toolbar"><div class="quick"><span>Accesos rápidos</span><button type="button" class="chip" data-genre="Drama">Drama</button><button type="button" class="chip" data-genre="Documental">Documental</button><button type="button" class="chip" data-genre="Experimental">Experimental</button><button type="button" class="chip" data-genre="Thriller">Thriller</button></div><div class="field" style="min-width:190px"><label for="sort">Orden</label><select id="sort"><option value="yearAsc">Más antiguas primero</option><option value="yearDesc">Más recientes primero</option><option value="titleAsc">Título A–Z</option><option value="random">Orden aleatorio</option></select></div></div></section>
 <section id="pickbox" class="pickbox" aria-label="Sorteo de película"><div><div class="eyebrow" id="pickLabel">TU PRÓXIMA PELÍCULA</div><h2 id="pickTitle">¿Qué te apetece ver?</h2><div class="selected-director" id="pickMeta">Elige los filtros que quieras o déjalos en blanco.</div><p id="pickDetail">El sorteo se hará únicamente entre los títulos que aparezcan en los resultados.</p></div><div class="pick-actions"><button class="button gold" id="surprise" type="button">✦ Sorpréndeme</button><button class="button ghost displaynone" id="pickView" type="button">Ver ficha ↗</button><button class="button good displaynone" id="pickWatched" type="button">✓ Ya la he visto</button></div></section>
-<section aria-label="Resultados"><div class="results-top"><div><h2>Tu lista</h2><p class="countlabel" id="resultCount">Cargando películas…</p></div><label class="checkline"><input id="showWatched" type="checkbox"> Mostrar las que ya he visto aquí</label></div><div class="cards" id="filmGrid" aria-live="polite"></div><div class="morewrap"><button type="button" id="showMore" class="button displaynone">Ver más películas ↓</button></div></section>
+<section aria-label="Resultados"><div class="results-top"><div><h2>Tu lista</h2><p class="countlabel" id="resultCount">Cargando películas…</p></div><label class="checkline"><input id="showWatched" type="checkbox"> Mostrar las que ya he visto aquí</label></div><div class="cards" id="filmGrid" aria-live="polite"></div><p class="poster-caption">Carteles e imágenes: Wikipedia, cuando hay una ficha coincidente. Las películas sin imagen mantienen su portada provisional.</p><div class="morewrap"><button type="button" id="showMore" class="button displaynone">Ver más películas ↓</button></div></section>
 <section class="backup" aria-label="Tus datos"><div><h3>Tu lista sigue siendo tuya</h3><p>Los cambios se guardan en este dispositivo, sin cuenta ni sincronización con otros móviles. Haz una copia de vez en cuando: si borras los datos del navegador, podrías perder las películas que hayas marcado.</p><p class="persistentwarning" id="storageWarn">Atención: este navegador no permite guardar tus cambios de forma permanente. Descarga una copia antes de cerrar.</p></div><div class="backupbuttons"><button id="backupBottom" type="button" class="button small">↓ Guardar copia</button><button id="restoreBtn" type="button" class="button small ghost">↑ Recuperar copia</button><input type="file" accept=".json,application/json" id="restoreFile" class="visuallyhidden"></div></section>
 </main>
-<dialog id="movieDialog" aria-labelledby="dialogTitle"><div class="dialog-body"><div class="dialog-top"><span class="eyebrow">FICHA DE PELÍCULA</span><button type="button" id="closeDialog" class="button small ghost" aria-label="Cerrar ficha">✕</button></div><h2 id="dialogTitle"></h2><div id="dialogInfo" class="dialog-data"></div><div id="dialogNote" class="note displaynone"></div><div class="dialog-actions"><button id="dialogWatched" type="button" class="button good">✓ Marcar como vista</button><button id="dialogEdit" type="button" class="button ghost">Editar datos</button><a id="filmaffinityLink" class="button ghost" href="#" target="_blank" rel="noopener noreferrer">Buscar en FilmAffinity ↗</a></div><form id="editor" class="editor"><h3>Corregir datos de esta película</h3><div class="field"><label for="editDirector">Director o directores</label><input id="editDirector" type="text" maxlength="180"></div><div class="field"><label for="editGenres">Géneros (separados por comas)</label><input id="editGenres" type="text" maxlength="220"></div><div class="field"><label for="editRuntime">Duración en minutos (opcional)</label><input id="editRuntime" type="number" min="1" max="2000" step="1" placeholder="Sin especificar"></div><button type="submit" class="button gold">Guardar cambios</button></form></div></dialog>
+<dialog id="movieDialog" aria-labelledby="dialogTitle"><div class="dialog-body"><div class="dialog-top"><span class="eyebrow">FICHA DE PELÍCULA</span><button type="button" id="closeDialog" class="button small ghost" aria-label="Cerrar ficha">✕</button></div><h2 id="dialogTitle"></h2><div id="dialogPoster" class="dialog-poster"></div><div id="dialogInfo" class="dialog-data"></div><div id="dialogNote" class="note displaynone"></div><div class="dialog-actions"><button id="dialogWatched" type="button" class="button good">✓ Marcar como vista</button><button id="dialogEdit" type="button" class="button ghost">Editar datos</button><a id="filmaffinityLink" class="button ghost" href="#" target="_blank" rel="noopener noreferrer">Buscar en FilmAffinity ↗</a></div><form id="editor" class="editor"><h3>Corregir datos de esta película</h3><div class="field"><label for="editDirector">Director o directores</label><input id="editDirector" type="text" maxlength="180"></div><div class="field"><label for="editGenres">Géneros (separados por comas)</label><input id="editGenres" type="text" maxlength="220"></div><div class="field"><label for="editRuntime">Duración en minutos (opcional)</label><input id="editRuntime" type="number" min="1" max="2000" step="1" placeholder="Sin especificar"></div><button type="submit" class="button gold">Guardar cambios</button></form></div></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script>
 'use strict';
@@ -83,14 +93,132 @@ function movieById(id){return allMovies().find(m=>m.id===id)}
 function filterMovies(){const term=normalize($('search').value),decade=$('decade').value,dr=$('director').value,gn=$('genre').value,showSeen=$('showWatched').checked;let filtered=allMovies().filter(m=>(showSeen||!m.seen)&&(!decade||getDecade(m.year)===Number(decade))&&(!dr||m.director===dr)&&(!gn||m.genres.includes(gn))&&(!term||normalize(m.title+' '+m.director).includes(term)));const sort=$('sort').value;if(sort==='yearAsc')filtered.sort((a,b)=>a.year-b.year||alphabet(a.title,b.title));else if(sort==='yearDesc')filtered.sort((a,b)=>b.year-a.year||alphabet(a.title,b.title));else if(sort==='titleAsc')filtered.sort((a,b)=>alphabet(a.title,b.title));else {filtered.sort((a,b)=>((a.id*37)%201)-((b.id*37)%201));}return filtered;}
 function repopulateFilters(){const all=allMovies();for(const [key,options,label] of [ ['decade',[...new Set(all.map(m=>getDecade(m.year)))].sort((a,b)=>a-b),'s'], ['director',[...new Set(all.map(m=>m.director).filter(Boolean))].sort(alphabet),''], ['genre',[...new Set(all.flatMap(m=>m.genres))].sort(alphabet),''] ]){const select=$(key);const previous=select.value;while(select.options.length>1)select.remove(1);for(const val of options){const opt=document.createElement('option');opt.value=String(val);opt.textContent=key==='decade'?`${val}${label}`:val;select.append(opt);}if([...select.options].some(o=>o.value===previous))select.value=previous;}}
 function elem(tag,classname,text){const e=document.createElement(tag);if(classname)e.className=classname;if(text!==undefined)e.textContent=text;return e;}
-function movieCard(m){const card=elem('article','movie'+(m.seen?' seen':''));const hue=23+((m.id*31)%170);const poster=elem('div','cover');poster.style.setProperty('--hue',String(hue));poster.append(elem('b','',String(m.year)));poster.append(elem('em','','HISTORIKOAK'));const c=elem('div','filmcontent');const title=elem('div','filmname',m.title);const creator=elem('div','smallline',m.director||'Director por confirmar');const tags=elem('div','genreline');for(const g of m.genres.slice(0,3))tags.append(elem('span','',g));const actions=elem('div','filmactions');const info=elem('button','textbutton','Ver ficha ↗');info.type='button';info.addEventListener('click',()=>openMovie(m.id));const watch=elem('button','textbutton '+(m.seen?'seenmark':''),m.seen?'↶ Deshacer':'✓ Ya vista');watch.type='button';watch.setAttribute('aria-label',m.seen?'Volver a marcar como pendiente '+m.title:'Marcar como vista '+m.title);watch.addEventListener('click',()=>toggleWatched(m.id));actions.append(info,watch);c.append(title,creator,tags,actions);card.append(poster,c);return card;}
+
+/* Carteles: consultas públicas y gratuitas a Wikipedia. No se guarda ninguna contraseña. */
+const POSTER_CACHE_KEY='historikoak-wikipedia-posters-v1';
+const POSTER_TTL=1000*60*60*24*30;
+let posterData={};
+const posterTasks=[];
+const posterQueued=new Set();
+let posterActive=0;
+try {
+  const raw=JSON.parse(localStorage.getItem(POSTER_CACHE_KEY)||'{}');
+  if(raw && typeof raw==='object')posterData=raw;
+} catch (_) {}
+function posterValidRecord(obj){
+  return obj && typeof obj==='object' && Number.isFinite(obj.at)
+    && Date.now()-obj.at<POSTER_TTL
+    && (obj.url===null || (typeof obj.url==='string' && /^https:\/\/upload\.wikimedia\.org\//.test(obj.url)));
+}
+function posterKey(s){
+  return normalize(s).replace(/['’]/g,'').replace(/&/g,'and').replace(/[^a-z0-9]+/g,' ').replace(/^the /,'').trim();
+}
+function posterBestPage(m,pages){
+  let best=null,score=0;
+  for(const page of pages){
+    if(!page.thumbnail?.source || !page.title)continue;
+    const base=page.title.replace(/\s*\([^)]*\)\s*$/,'');
+    const key=posterKey(base),wanted=posterKey(m.title);
+    if(key!==wanted)continue; // Evita carteles de películas con títulos similares.
+    const pageYear=page.title.match(/\b(?:18|19|20)\d{2}\b/);
+    const desc=(page.terms?.description||[]).join(' ').toLowerCase();
+    const yearsInDesc=desc.match(/\b(?:18|19|20)\d{2}\b/g)||[];
+    if(pageYear && Number(pageYear[0])!==m.year)continue;
+    if(!pageYear && yearsInDesc.length && !yearsInDesc.includes(String(m.year)))continue;
+    const isFilm=/\b(film|movie|documentary|motion picture)\b/i.test(page.title+' '+desc);
+    if(!isFilm)continue;
+    const pts=10+(pageYear?10:0)+(yearsInDesc.includes(String(m.year))?5:0);
+    if(pts>score){best=page;score=pts;}
+  }
+  return best;
+}
+async function requestPoster(m){
+  const url=new URL('https://en.wikipedia.org/w/api.php');
+  for(const [k,v] of Object.entries({
+    action:'query',format:'json',formatversion:'2',origin:'*',
+    generator:'search',gsrsearch:m.title+' '+m.year+' film',gsrlimit:'6',gsrnamespace:'0',
+    prop:'pageimages|pageterms|info',piprop:'thumbnail',pithumbsize:'320',pilicense:'any',pilimit:'6',
+    wbptterms:'description',inprop:'url'
+  }))url.searchParams.set(k,v);
+  const response=await fetch(url.toString(),{mode:'cors',credentials:'omit'});
+  if(!response.ok)throw new Error('Wikipedia no responde');
+  const data=await response.json();
+  const page=posterBestPage(m,data.query?.pages||[]);
+  if(!page || !/^https:\/\/upload\.wikimedia\.org\//.test(page.thumbnail.source))
+    return {url:null,page:null,at:Date.now()};
+  return {url:page.thumbnail.source,page:page.fullurl||'https://en.wikipedia.org/wiki/'+encodeURIComponent(page.title.replace(/ /g,'_')),at:Date.now()};
+}
+function updatePosterElements(id){
+  const rec=posterData[id];
+  if(!rec || !rec.url)return;
+  for(const box of document.querySelectorAll('[data-poster-id="'+id+'"]')){
+    if(box.querySelector('.real-poster'))continue;
+    const img=document.createElement('img');
+    img.className='real-poster';img.alt='Cartel o imagen de la película';img.loading='lazy';img.decoding='async';
+    img.onerror=()=>img.remove();
+    img.src=rec.url;box.append(img);
+  }
+  if(dialogId===id){
+    const source=$('posterSourceLink');
+    if(source && rec.page){source.href=rec.page;source.classList.remove('displaynone');}
+  }
+}
+function persistPosterCache(){
+  try{localStorage.setItem(POSTER_CACHE_KEY,JSON.stringify(posterData));}catch(_){}
+}
+function queuePoster(m,priority=false){
+  if(!m || posterQueued.has(m.id))return;
+  const saved=posterData[m.id];
+  if(posterValidRecord(saved)){updatePosterElements(m.id);return;}
+  posterQueued.add(m.id);
+  if(priority)posterTasks.unshift(m);else posterTasks.push(m);
+  pumpPosters();
+}
+function pumpPosters(){
+  while(posterActive<3 && posterTasks.length){
+    const m=posterTasks.shift();posterActive++;
+    requestPoster(m).then(rec=>{
+      posterData[m.id]=rec;persistPosterCache();updatePosterElements(m.id);
+    }).catch(()=>{
+      // Un fallo de red no se registra como "sin cartel"; podrá reintentarse.
+    }).finally(()=>{posterQueued.delete(m.id);posterActive--;pumpPosters();});
+  }
+}
+const posterObserver=('IntersectionObserver' in window)?
+ new IntersectionObserver(entries=>{
+   for(const entry of entries){
+     if(!entry.isIntersecting)continue;
+     posterObserver.unobserve(entry.target);
+     const id=Number(entry.target.dataset.posterId);
+     queuePoster(BASE_MOVIES.find(m=>m.id===id));
+   }
+ },{rootMargin:'250px'}):null;
+function makePoster(m){
+  const cover=elem('div','cover');
+  cover.dataset.posterId=String(m.id);
+  cover.style.setProperty('--hue',String(23+((m.id*31)%170)));
+  cover.append(elem('b','',String(m.year)),elem('em','','HISTORIKOAK'));
+  if(posterValidRecord(posterData[m.id]))updatePosterSoon(cover,posterData[m.id]);
+  else if(posterObserver)posterObserver.observe(cover);
+  else queuePoster(m);
+  return cover;
+}
+function updatePosterSoon(box,rec){
+  if(!rec.url)return;
+  const img=document.createElement('img');
+  img.className='real-poster';img.alt='Cartel o imagen de la película';img.loading='lazy';img.decoding='async';
+  img.onerror=()=>img.remove();
+  img.src=rec.url;box.append(img);
+}
+
+function movieCard(m){const card=elem('article','movie'+(m.seen?' seen':''));const poster=makePoster(m);const c=elem('div','filmcontent');const title=elem('div','filmname',m.title);const creator=elem('div','smallline',m.director||'Director por confirmar');const tags=elem('div','genreline');for(const g of m.genres.slice(0,3))tags.append(elem('span','',g));const actions=elem('div','filmactions');const info=elem('button','textbutton','Ver ficha ↗');info.type='button';info.addEventListener('click',()=>openMovie(m.id));const watch=elem('button','textbutton '+(m.seen?'seenmark':''),m.seen?'↶ Deshacer':'✓ Ya vista');watch.type='button';watch.setAttribute('aria-label',m.seen?'Volver a marcar como pendiente '+m.title:'Marcar como vista '+m.title);watch.addEventListener('click',()=>toggleWatched(m.id));actions.append(info,watch);c.append(title,creator,tags,actions);card.append(poster,c);return card;}
 function render(){const all=allMovies();$('pendingCounter').textContent=String(all.filter(m=>!m.seen).length);$('seenCounter').textContent=String(progress.watched.length);const filtered=filterMovies();$('resultCount').textContent=`${filtered.length} ${filtered.length===1?'película disponible':'películas disponibles'} con estos filtros`;const grid=$('filmGrid');grid.replaceChildren();if(!filtered.length){const empty=elem('div','empty');empty.append(elem('h3','','No hay películas con estos filtros'));empty.append(elem('p','','Prueba otra década, director o género.'));grid.append(empty);}else for(const m of filtered.slice(0,visibleCount))grid.append(movieCard(m));$('showMore').classList.toggle('displaynone',filtered.length<=visibleCount);if(selectedId){const picked=movieById(selectedId);updateFeatured(picked);}else updateFeatured(null);$('surprise').disabled=!filtered.length;}
 function updateFeatured(m){const box=$('pickbox');box.classList.toggle('selected',Boolean(m));$('pickLabel').textContent=m?'LA SUERTE HA ELEGIDO':'TU PRÓXIMA PELÍCULA';$('pickTitle').textContent=m?m.title:'¿Qué te apetece ver?';$('pickMeta').textContent=m?`${m.year} · ${m.director||'Director por confirmar'} · ${m.genres.join(' / ')}`:'Elige los filtros que quieras o déjalos en blanco.';$('pickDetail').textContent=m?(m.seen?'Ya la has marcado como vista. Puedes deshacerlo si quieres.':'Seleccionada entre las películas que cumplen tus filtros.'):'El sorteo se hará únicamente entre los títulos que aparezcan en los resultados.';$('pickView').classList.toggle('displaynone',!m);$('pickWatched').classList.toggle('displaynone',!m||m.seen);}
 function filterChanged(){selectedId=null;visibleCount=30;render();}
 function surprise(){const matches=filterMovies().filter(m=>!m.seen);if(!matches.length){notice('No hay películas pendientes que cumplan esos filtros.');return;}const pool=matches.length>1?matches.filter(m=>m.id!==selectedId):matches;const film=pool[Math.floor(Math.random()*pool.length)];selectedId=film.id;updateFeatured(film);$('pickbox').scrollIntoView({behavior:'smooth',block:'center'});}
 function toggleWatched(id){const m=movieById(id);if(!m)return;const idx=progress.watched.indexOf(id);if(idx>=0)progress.watched.splice(idx,1);else progress.watched.push(id);saveProgress();render();if(dialogId===id)renderDialog();notice(idx>=0?`«${m.title}» vuelve a pendientes.`:`«${m.title}» marcada como vista.`);}
 function openMovie(id){dialogId=id;renderDialog();$('editor').classList.remove('open');$('movieDialog').showModal();}
-function renderDialog(){const m=movieById(dialogId);if(!m)return;$('dialogTitle').textContent=m.title;const info=$('dialogInfo');info.replaceChildren();for(const [label,value] of [['Año',m.year],['Dirección',m.director||'Por confirmar'],['Género',m.genres.join(', ')||'Por clasificar'],['Duración',m.runtime?m.runtime+' minutos':'Sin datos todavía'],['Estado',m.seen?'Vista':'Pendiente']]){const line=elem('div');const bold=elem('b','',label+': ');line.append(bold,document.createTextNode(value));info.append(line);}const note=$('dialogNote');note.classList.toggle('displaynone',!m.note);note.textContent=m.note||'';$('dialogWatched').textContent=m.seen?'↶ Volver a pendientes':'✓ Marcar como vista';$('editDirector').value=m.director;$('editGenres').value=m.genres.join(', ');$('editRuntime').value=m.runtime||'';$('filmaffinityLink').href='https://www.google.com/search?q='+encodeURIComponent(`${m.title} ${m.year} site:filmaffinity.com`);}
+function renderDialog(){const m=movieById(dialogId);if(!m)return;$('dialogTitle').textContent=m.title;const posterBox=$('dialogPoster');posterBox.replaceChildren();const visual=makePoster(m);posterBox.append(visual);const sourceLink=elem('a','poster-source displaynone','Ver imagen y ficha en Wikipedia ↗');sourceLink.id='posterSourceLink';sourceLink.target='_blank';sourceLink.rel='noopener noreferrer';posterBox.append(sourceLink);const cached=posterData[m.id];if(posterValidRecord(cached)&&cached.url&&cached.page){sourceLink.href=cached.page;sourceLink.classList.remove('displaynone');}else queuePoster(m,true);const info=$('dialogInfo');info.replaceChildren();for(const [label,value] of [['Año',m.year],['Dirección',m.director||'Por confirmar'],['Género',m.genres.join(', ')||'Por clasificar'],['Duración',m.runtime?m.runtime+' minutos':'Sin datos todavía'],['Estado',m.seen?'Vista':'Pendiente']]){const line=elem('div');const bold=elem('b','',label+': ');line.append(bold,document.createTextNode(value));info.append(line);}const note=$('dialogNote');note.classList.toggle('displaynone',!m.note);note.textContent=m.note||'';$('dialogWatched').textContent=m.seen?'↶ Volver a pendientes':'✓ Marcar como vista';$('editDirector').value=m.director;$('editGenres').value=m.genres.join(', ');$('editRuntime').value=m.runtime||'';$('filmaffinityLink').href='https://www.google.com/search?q='+encodeURIComponent(`${m.title} ${m.year} site:filmaffinity.com`);}
 function notice(message){const t=$('toast');t.textContent=message;t.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('show'),3300)}
 function exportBackup(){const payload={app:'Historikoak',version:1,exportedAt:new Date().toISOString(),watched:[...progress.watched],overrides:progress.overrides};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='Historikoak_copia_'+new Date().toISOString().slice(0,10)+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);notice('Copia descargada. Consérvala en una carpeta segura.');}
 function restoreBackup(e){const file=e.target.files&&e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const v=JSON.parse(String(reader.result));if(v.app!=='Historikoak'||!Array.isArray(v.watched)||v.version!==1)throw Error('Formato incorrecto');if(!confirm('¿Reemplazar tus películas marcadas y correcciones por las de esta copia?'))return;progress=sanitizeProgress(v);saveProgress();repopulateFilters();selectedId=null;filterChanged();notice('Copia recuperada correctamente.');}catch(err){notice('No se pudo cargar. Elige una copia válida de Historikoak.')}finally{e.target.value='';}};reader.readAsText(file);}
