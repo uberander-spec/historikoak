@@ -275,7 +275,7 @@ function loadProgress(){try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){
 /* Disponibilidad voluntariamente verificada. No se inventan datos en directo. */
 const STREAMING_PLATFORMS=['Filmin','Movistar Plus+','Netflix','Prime Video','MUBI','HBO Max','Disney+','SkyShowtime','Apple TV+','FlixOlé','RTVE Play','Rakuten TV','Pluto TV','Tivify','Otra plataforma'];
 const STREAMING_STATES=['unknown','streaming','rent','unavailable'];
-function watchLink(m){return 'https://www.justwatch.com/es/buscar?q='+encodeURIComponent(m.title+' '+m.year);}
+function watchLink(m){return 'https://www.justwatch.com/es/buscar?q='+encodeURIComponent(m.title);}
 function availableText(m){
   if(m.availabilityStatus==='streaming'&&m.platforms?.length)return 'Incluida en: '+m.platforms.join(' · ');
   if(m.availabilityStatus==='rent')return 'Solo alquiler o compra (según última comprobación)';
