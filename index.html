@@ -74,7 +74,7 @@
   <div class="field"><label for="director">Director</label><select id="director"><option value="">Todos los directores</option></select></div>
   <div class="field"><label for="genre">Género</label><select id="genre"><option value="">Todos los géneros</option></select></div>
   <div class="field"><label for="duration">Duración</label><select id="duration"><option value="">Cualquier duración</option><option value="short">Hasta 90 min</option><option value="medium">91–120 min</option><option value="long">121–150 min</option><option value="verylong">Más de 150 min</option><option value="unknown">Sin duración confirmada</option></select></div>
-</div><div class="toolbar"><div class="quick"><span>Accesos rápidos</span><button type="button" class="chip" data-genre="Drama">Drama</button><button type="button" class="chip" data-genre="Documental">Documental</button><button type="button" class="chip" data-genre="Experimental">Experimental</button><button type="button" class="chip" data-genre="Thriller">Thriller</button></div><div class="field" style="min-width:190px"><label for="sort">Orden</label><select id="sort"><option value="yearAsc">Más antiguas primero</option><option value="yearDesc">Más recientes primero</option><option value="titleAsc">Título A–Z</option><option value="random">Orden aleatorio</option></select></div><div class="duration-status"><span id="durationStatus" aria-live="polite">Preparando duraciones...</span><button id="durationFetch" type="button" class="textbutton">↻ Completar duraciones</button></div></div></section>
+</div><div class="toolbar"><div class="quick"><span>Accesos rápidos</span><button type="button" class="chip" data-genre="Drama">Drama</button><button type="button" class="chip" data-genre="Documental">Documental</button><button type="button" class="chip" data-genre="Experimental">Experimental</button><button type="button" class="chip" data-genre="Thriller">Thriller</button></div><div class="field" style="min-width:190px"><label for="sort">Orden</label><select id="sort"><option value="yearAsc">Más antiguas primero</option><option value="yearDesc">Más recientes primero</option><option value="titleAsc">Título A–Z</option><option value="random">Orden aleatorio</option></select></div><div class="duration-status"><span id="durationStatus" aria-live="polite">Preparando duraciones...</span><button id="durationFetch" type="button" class="textbutton">↻ Completar duraciones</button><button id="exportMissingDurations" type="button" class="textbutton" title="Descargar los títulos cuya duración falta">↓ Descargar pendientes</button></div></div></section>
 <section id="pickbox" class="pickbox" aria-label="Sorteo de película"><div><div class="eyebrow" id="pickLabel">TU PRÓXIMA PELÍCULA</div><h2 id="pickTitle">¿Qué te apetece ver?</h2><div class="selected-director" id="pickMeta">Elige los filtros que quieras o déjalos en blanco.</div><p id="pickDetail">El sorteo se hará únicamente entre los títulos que aparezcan en los resultados.</p></div><div class="pick-actions"><button class="button gold" id="surprise" type="button">✦ Sorpréndeme</button><button class="button ghost displaynone" id="pickView" type="button">Ver ficha ↗</button><button class="button good displaynone" id="pickWatched" type="button">✓ Ya la he visto</button></div></section>
 <section aria-label="Resultados"><div class="results-top"><div><h2>Tu lista</h2><p class="countlabel" id="resultCount">Cargando películas…</p></div><label class="checkline"><input id="showWatched" type="checkbox"> Mostrar las que ya he visto aquí</label></div><div class="cards" id="filmGrid" aria-live="polite"></div><p class="poster-caption">Carteles e imágenes: Wikipedia, cuando hay una ficha coincidente. Las películas sin imagen mantienen su portada provisional.</p><div class="morewrap"><button type="button" id="showMore" class="button displaynone">Ver más películas ↓</button></div></section>
 <section class="backup" aria-label="Tus datos"><div><h3>Tu lista sigue siendo tuya</h3><p>Los cambios se guardan en este dispositivo, sin cuenta ni sincronización con otros móviles. Haz una copia de vez en cuando: si borras los datos del navegador, podrías perder las películas que hayas marcado.</p><p class="persistentwarning" id="storageWarn">Atención: este navegador no permite guardar tus cambios de forma permanente. Descarga una copia antes de cerrar.</p></div><div class="backupbuttons"><button id="backupBottom" type="button" class="button small">↓ Guardar copia</button><button id="restoreBtn" type="button" class="button small ghost">↑ Recuperar copia</button><input type="file" accept=".json,application/json" id="restoreFile" class="visuallyhidden"></div></section>
@@ -200,6 +200,22 @@ function renderDurationStatus(){
   $('durationFetch').textContent=working?'Buscando duraciones…':'↻ Reintentar las que faltan';
   $('durationFetch').disabled=Boolean(working);
 }
+
+function exportMissingDurations(){
+  const missing=allMovies().filter(m=>!Number.isInteger(m.runtime)||m.runtime<=0);
+  if(!missing.length){notice('Todas las películas tienen duración.');return;}
+  const csvEscape=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const rows=[['Título','Año','Director'],...missing.map(m=>[m.title,m.year,m.director])];
+  const data='\uFEFF'+rows.map(row=>row.map(csvEscape).join(';')).join('\r\n');
+  const blob=new Blob([data],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='Historikoak_duraciones_pendientes.csv';
+  document.body.append(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+  notice('Descargada la lista de '+missing.length+' películas sin duración.');
+}
+
 function notifyRuntimeChange(m){
   const current=allMovies().find(x=>x.id===m.id);
   for(const span of document.querySelectorAll('[data-runtime-label="'+m.id+'"]')){
@@ -387,6 +403,7 @@ $('dialogEdit').addEventListener('click',()=>$('editor').classList.toggle('open'
 $('editor').addEventListener('submit',e=>{e.preventDefault();if(!dialogId)return;const director=$('editDirector').value.trim(),genres=[...new Set($('editGenres').value.split(',').map(s=>s.trim()).filter(Boolean))].slice(0,8),durStr=$('editRuntime').value.trim(),runtime=durStr?Number(durStr):null;if(runtime!==null&&(!Number.isInteger(runtime)||runtime<1||runtime>2000)){notice('Introduce una duración válida en minutos.');return;}progress.overrides[dialogId]={director,genres,runtime};saveProgress();repopulateFilters();render();renderDialog();$('editor').classList.remove('open');notice('Ficha actualizada.');});
 $('backupTop').addEventListener('click',exportBackup);$('backupBottom').addEventListener('click',exportBackup);$('restoreBtn').addEventListener('click',()=>$('restoreFile').click());$('restoreFile').addEventListener('change',restoreBackup);
 $('durationFetch').addEventListener('click',()=>queueAllDurations(true));
+$('exportMissingDurations').addEventListener('click',exportMissingDurations);
 loadProgress();repopulateFilters();render();renderDurationStatus();
 window.addEventListener('load',()=>{if(navigator.onLine!==false)setTimeout(()=>queueAllDurations(false),1800);});
 </script>
